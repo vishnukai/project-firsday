@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+% load_static %}
+{% block body %}
+<div class="container-fluid" style="display:flex;">
+<div class="col-sm-12">
+    <div class=row>
+    <div class="col-sm-6">
+Ledger:Federal bank
+    </div>
+    <div class="col-sm-6" style="text-align:right;">
+        1-Apr-2022
+
+    </div>
+
+
+
+
+</div>
+<div class="row">
+    <div class="col-sm-12" style="text-align:center;">
+      <b>  (Bank not Configured for Cheque Printing)</b>
+    </div>
+
+</div>
+<div class="table-responsive">
+<table class="table table-responsive-md table-hover mt-4">
+ <thead>   <tr>
+        <th >
+            Date
+
+        </th>
+        <th>
+            Particulars
+        </th>
+        <th>
+            Insturment No:
+
+        </th>
+        <th>
+            Insturment Date:
+
+        </th>
+        <th>
+            Printed?
+            
+        </th>
+        <th>
+            Amount
+            
+        </th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>
+            1-Apr-2022
+        </td>
+        <td>
+           Cash
+        </td>
+        <td>
+            
+        </td>
+        <td>
+            1-Apr-2022
+        </td>
+        <td>
+            No
+             
+           
+        </td>
+        <td>
+           100000.00 
+        </td>
+    </tr>
+    <tr>
+        <td class="total-column" colspan="5">
+        Selected Total
+        </td>
+        <td>200</td>
+    </tr>
+    <tr>
+        <td class="total-column" colspan="5">
+        Total
+        </td>
+        <td>200</td>
+    </tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</div>
+
+
+
+
+ {% endblock %}
