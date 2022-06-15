@@ -22,9 +22,12 @@ Ledger:Federal bank
     </div>
 
 </div>
+
 <div class="table-responsive">
-<table class="table table-responsive-md table-hover mt-4">
+
+<table  class="table table-responsive-md table-hover mt-4">
  <thead>   <tr>
+    <th>Select</th>
         <th >
             Date
 
@@ -53,6 +56,9 @@ Ledger:Federal bank
 <tbody>
     <tr>
         <td>
+            <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value="100000">
+        </td>
+        <td>
             1-Apr-2022
         </td>
         <td>
@@ -69,24 +75,71 @@ Ledger:Federal bank
              
            
         </td>
-        <td>
-           100000.00 
+        <td >
+            100000
         </td>
     </tr>
     <tr>
-        <td class="total-column" colspan="5">
+        <td>
+            <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value="100000">
+        </td>
+        <td>
+            1-Apr-2022
+        </td>
+        <td>
+           Cash
+        </td>
+        <td>
+            
+        </td>
+        <td>
+            1-Apr-2022
+        </td>
+        <td>
+            No
+             
+           
+        </td>
+        <td   >
+            
+         100000
+        </td>
+    </tr>
+    <tr>
+       
+        <td class="total-column" colspan="6">
         Selected Total
         </td>
-        <td>200</td>
+        <td>  <p style="color:white"  id="show" name="vehicle"></p><br></td>
     </tr>
     <tr>
-        <td class="total-column" colspan="5">
+        <td class="total-column" colspan="6">
         Total
         </td>
-        <td>200</td>
+        <td>
+            <span id="val"></span>
+            <script>
+            
+                var table = document.getElementById("table")
+                var  sumVal = 0;
+                
+                for(var i = 0; i < table.length; i++)
+                {
+                    sumVal = sumVal + parseInt(table[i].value);
+                }
+                
+                document.getElementById("val").innerHTML =  sumVal;
+                console.log(sumVal);
+                
+            </script>
+        </td>
     </tr>
+
 </tbody>
 </table>
+
+
+
 </div>
 
 </div>

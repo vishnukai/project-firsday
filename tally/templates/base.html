@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Fin sYs</title>
+    <title>Tally</title>
     <!--favicon-->
     <link rel="icon" href="{% static 'assets/images/favicon-32x32.png' %}" type="image/png" />
     <!-- Vector CSS -->
@@ -44,11 +44,44 @@
     width: 100%;
   }
 
-}
-table{
-    border:4px solid black;
-    border-collapse: collapse;
-}
+    * {
+      box-sizing: border-box;
+    }
+    
+    #myInput {
+      background-image: url('/css/searchicon.png');
+      background-position: 10px 12px;
+      background-repeat: no-repeat;
+      width: 100%;
+      font-size: 16px;
+      padding: 12px 20px 12px 40px;
+      border: 1px solid #ddd;
+      margin-bottom: 12px;
+    }
+    
+    #myUL {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    #myUL li a {
+      border: 1px solid #ddd;
+      margin-top: -1px; /* Prevent double borders */
+      background-color: #f6f6f6;
+      padding: 12px;
+      text-decoration: none;
+      font-size: 18px;
+      color: black;
+      display: block
+    }
+    
+    #myUL li a:hover:not(.header) {
+      background-color: #eee;
+    }
+
+
+
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
@@ -63,6 +96,34 @@ table{
                 $select3.html($options1.filter('[text="' + this.value + '"]'));
             }).trigger('change');
         });
+
+
+
+        function checkbox(){
+  
+  var checkboxes = document.getElementsByName('vehicle');
+  var checkboxesChecked = [];
+  var b=0;
+  // loop over them all
+  for (var i=0; i<checkboxes.length; i++) {
+     // And stick the checked ones onto an array...
+     if (checkboxes[i].checked) {
+        b=b+parseInt(checkboxes[i].value);
+     }
+  }
+  document.getElementById("show").innerHTML = b;
+
+}
+
+
+
+
+
+
+
+
+
+   
     </script>
 </head>
 
@@ -79,7 +140,7 @@ table{
                             <img src="{% static 'assets/images/logo-icon.png' %}" class="logo-icon-2" alt="" />
                         </div>
                         <div class="a">
-                            <h4><b>Fin sYs</b></h4>
+                            <h4><b>Tally</b></h4>
                         </div>
                         <a href="javascript:;" class="toggle-btn ml-lg-auto"> <i class="bx bx-menu"></i>
                         </a>
@@ -233,15 +294,32 @@ table{
                                 <div class="menu-title">Banking</div>
                             </a>
                             <ul>
-                                <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Online
+                                <li ><a href="#"><i class="bx bx-right-arrow-alt"></i>CHEQUE               
+                  </a>
+                  <ul>
+                   <a href="{% url 'searchbar' %}"><i class="bx bx-right-arrow-alt"></i>
+                    Cheque printing</a>
+               
+                    <a href="{% url 'chequeregister' %}"><i class="bx bx-right-arrow-alt"></i>
+                     Cheque printing</a>
+                     <a href="{% url 'searchledger' %}"><i class="bx bx-right-arrow-alt"></i>
+                        Post Dated Summary</a>
+                    </ul>
+                 
+                                </li>
+                                <li><a href="#"><i class="bx bx-right-arrow-alt"></i>STATEMENTS
                     Banking</a>
+                    <ul>
+                        <a href="#"><i class="bx bx-right-arrow-alt"></i>
+                         Deposit Slip</a>
+                    
+                         <a href="#"><i class="bx bx-right-arrow-alt"></i>
+                          Payment Advice</a>
+                          <a href="#"><i class="bx bx-right-arrow-alt"></i>
+                             Bank Reconciliation</a>
+                         </ul>
                                 </li>
-                                <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Offline
-                    Banking</a>
-                                </li>
-                                <li><a href="#"><i class="bx bx-right-arrow-alt"></i>Bank
-                    Reconcilation</a>
-                                </li>
+                   
                             </ul>
                         </li>
                         <li>
