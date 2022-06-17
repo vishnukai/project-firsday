@@ -54,21 +54,23 @@ Ledger:Federal bank
     </tr>
 </thead>
 <tbody>
+    {% for bank in bank %}
     <tr>
         <td>
             <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value="100000">
         </td>
         <td>
-            1-Apr-2022
+            {{bank.date.date}}
         </td>
         <td>
-           Cash
+           {{bank.amount.particualrs}}
         </td>
         <td>
+            {{bank.instno}}
             
         </td>
         <td>
-            1-Apr-2022
+            {{bank.instdate}}
         </td>
         <td>
             No
@@ -76,9 +78,10 @@ Ledger:Federal bank
            
         </td>
         <td >
-            100000
+            {{bank.amount.amount}}
         </td>
     </tr>
+    {% endfor %}
     <tr>
         <td>
             <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value="100000">
