@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block body %}
+{% load static %}
+<form>
+<div class="container-fluid">
+ <div class="col-sm-12">
+    <div class="row">
+        <div class="col-sm-6">
+      <h1>Contra</h1>No.{{con.no}}   
+    </div>
+    <div class="col-sm-6" style="text-align:right">
+        <h4>{{bak.date.date}}</h4>
+           
+      </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+        Account:{{bak.date.account}}
+
+        </div>
+
+    </div>
+    <div class="table-responsive">
+        <table class="table table-responsive-md table-hover mt-4">
+            <thead>
+                <tr>
+                    <th>
+                        Particulars
+                    </th>
+                    
+                    <th style="text-align:right;">
+                       Amount
+                    </th>
+                </tr>
+              
+            </thead>
+
+            <tbody>
+  
+  
+   
+                <tr>
+                    <th>
+                        {{bak.amount.particualrs}}
+                      
+                     
+                    </th>
+                   
+                    <th style="text-align:right;">
+                        
+                        {{bak.amount.amount}}
+                    </th>
+                </tr>
+                <tr>
+                    <th >
+                      
+                     Narration
+                    </th>
+                   
+                    <th style="text-align:right;">
+                        {{bak.amount.amount}}
+                        
+                       
+                    </th>
+                </tr>
+                
+                
+             
+          
+                
+            </tbody>
+        </table>
+    </div>
+
+
+ </div>   
+
+
+
+</div>
+</form>
+{% endblock %}
