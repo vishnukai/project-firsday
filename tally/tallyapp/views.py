@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from tallyapp.models import  groups,ledger,bank
+from tallyapp.models import  groups,ledger,bank,contra,payment
 from django.db.models import Count
 
 # Create your views here.
@@ -10,17 +10,31 @@ def chequeprinting(request):
     return render(request,'chequeprinting.html')
 
 def chequeregister(request):
-    led=ledger.objects.all()   
-    bak=bank.objects.all().values('ledger').annotate(total=Count('ledger'))
-    print(bak)
-    
+
+
+    b=bank.objects.all().values('ledger').annotate(total=Count('ledger'))
+
+    bak=list(b)
+    a_list = []     
+
+    for i in range(0,len(bak)):
+
+        a=bak[i]
+        for i in a:
+            if i == "ledger":
+                
+                uid=a[i]
+                led=ledger.objects.get(id=uid)
+                c=led.name
+                a.update({'ledger':c})
+                a_list.append(a)
+               
+                
+                
+            else:
+                pass           
         
-           
-
-
-    
-    
-    return render(request,'chequeregister.html',{'bak':bak})
+    return render(request,'chequeregister.html',{'bak':a_list})
 
 
 def montlysummary(request):
@@ -43,8 +57,20 @@ def chequep(request,id):
     return render(request,'chequeprinting.html',{'bank':bak})
 
 
+def voucher(request,id):
+    bak=bank.objects.get(id=id)
+    uid=bak.amount.id
+    
+    if contra.objects.filter(amount=uid).exists():
+        con=contra.objects.get(amount=uid)
+        
+        return render(request,'voucher.html',{'bak':bak,'con':con})
+       
+    elif payment.objects.filter(amount=uid).exists():
+         con=payment.objects.get(amount=uid)
+         
+         return render(request,'payment.html',{'bak':bak,'con':con})
 
-
-
+    
 
 
