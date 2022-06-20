@@ -1,6 +1,7 @@
-from django.shortcuts import render
-from tallyapp.models import  groups,ledger,bank,contra,payment
+from django.shortcuts import render, redirect
+from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account
 from django.db.models import Count
+from django.contrib import messages
 
 # Create your views here.
 def home(request):
@@ -53,8 +54,14 @@ def searchledger(request):
 
 
 def chequep(request,id):
+    sum=0
     bak=bank.objects.filter(ledger=id)
-    return render(request,'chequeprinting.html',{'bank':bak})
+    back=bak
+    for  back in back:
+        b=back.amount.amount
+        sum=sum+b
+        
+    return render(request,'chequeprinting.html',{'bank':bak,'sum':sum})
 
 
 def voucher(request,id):
@@ -63,14 +70,65 @@ def voucher(request,id):
     
     if contra.objects.filter(amount=uid).exists():
         con=contra.objects.get(amount=uid)
+    
+
+
         
         return render(request,'voucher.html',{'bak':bak,'con':con})
        
     elif payment.objects.filter(amount=uid).exists():
          con=payment.objects.get(amount=uid)
-         
-         return render(request,'payment.html',{'bak':bak,'con':con})
+         led=ledger.objects.all()
+         return render(request,'payment.html',{'bak':bak,'con':con,'led':led})
+
+
+def updatepayment(request,id):
+    if request.method=="POST":
+        bak=bank.objects.get(id=id)
+        bid=bak.id
+        pid=bak.date.id
+        aid=bak.amount.id
+        accot=account.objects.get(id=pid)
+        part=Particulars.objects.get(id=aid)
+        pay=payment.objects.get(amount=aid)
+        leda=request.POST.get('account')
+        ledp=request.POST.get('particulars')
+        print(leda)
+        print(ledp)
+        
+        ledaccount=ledger.objects.get(name=leda)
+        ledparticulars=ledger.objects.get(name=ledp)
+             
+        if request.POST.get('particulars')=="":
+            messages.info(request,'Enter the particulars')
+            return redirect('voucher', bid)
+
+        
+        elif request.POST.get('account')=="": 
+            messages.info(request,'Enter the account')
+            return redirect('voucher', bid) 
+        elif request.POST.get('amount')=="":
+            messages.info(request,'Enter the amount')
+            return redirect('voucher', bid)
+        else:
+            part.amount=request.POST.get('amount')
+            part.particulars=ledparticulars
+            accot.account=ledaccount
+            accot.save()
+            part.save()
+            pay.amount=part.id
+            pay.save()
+        return redirect('voucher', bid)
+    return redirect('voucher', bid)
+
+
+
+            
+        
+
+
+            
+
 
     
-
 
