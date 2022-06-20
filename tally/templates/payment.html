@@ -1,15 +1,18 @@
 {% extends 'base.html' %}
 {% block body %}
 {% load static %}
-<form>
+<form method="POST" action="{% url 'updatepayment' bak.id %}">
+    {% csrf_token %}
 <div class="container-fluid">
  <div class="col-sm-12">
     <div class="row">
         <div class="col-sm-6">
-      <h1>Payment</h1>No.{{con.no}}   
+      <h1>Payment</h1><h4>No.{{con.no}}   </h4>
     </div>
     <div class="col-sm-6" style="text-align:right">
-        <h4>{{bak.date.date}}</h4>
+        <h4>{{bak.date.date }}</h4>
+        <h4>{{bak.date.date | date:"l"}}</h4>
+      
            
       </div>
 
@@ -17,7 +20,26 @@
 
     <div class="row">
         <div class="col-sm-12">
-        Account:{{bak.date.account}}
+        Account:
+        <input list="ledger"  placeholder="Enter the account" onkeyup="myFunction()" value="{{bak.date.account}}" style="background:#2f516f;border:none;color:white">
+        <datalist id="ledger">
+
+          
+           <ul id="myUL">
+               
+                  
+              <select name="particulars">
+          
+               {% for led in led %}
+               <option > 
+             <li >{{  led.name }}</li></option>
+             {% endfor %}    
+            <option> <li><a href="">Create</a></li></option>
+           </select>
+           
+           </ul>      
+           
+        </datalist>  
 
         </div>
 
@@ -25,6 +47,8 @@
     <div class="table-responsive">
         <table class="table table-responsive-md table-hover mt-4">
             <thead>
+
+                <tr></tr>
                 <tr>
                     <th>
                         Particulars
@@ -42,15 +66,33 @@
   
    
                 <tr>
-                    <th>
-                        {{bak.amount.particualrs}}
+                    <th> 
+                     <input list="ledger"  placeholder="Enter the Particulars" onkeyup="myFunction()" value="{{bak.amount.particualrs}}" style="background:#2f516f;border:none;color:white">
+                     <datalist id="ledger">
+           
+                       
+                        <ul id="myUL">
+                            
+                               
+                           <select name="particulars">
+                       
+                            {% for led in led %}
+                            <option > 
+                          <li >{{  led.name }}</li></option>
+                          {% endfor %}    
+                         <option> <li><a href="">Create</a></li></option>
+                        </select>
+                        
+                        </ul>      
+                        
+                     </datalist>  
                       
                      
                     </th>
                    
                     <th style="text-align:right;">
                         
-                        {{bak.amount.amount}}
+                       <input type="integer" value="{{bak.amount.amount}}"  name="amount" style="background:#2f516f;border:none;text-align:right;color:white">
                     </th>
                 </tr>
                 <tr>
@@ -72,6 +114,11 @@
                 
             </tbody>
         </table>
+    </div>
+    <div class="row" style="display:flex-end" >
+        <div class="col-sm-12" style="text-align:right"><input type="submit" value="Save" ></div>
+        
+
     </div>
 
 
