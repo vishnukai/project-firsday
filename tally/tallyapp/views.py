@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account
+from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account, transactiontype
 from django.db.models import Count
 from django.contrib import messages
 
@@ -42,10 +42,10 @@ def montlysummary(request):
     return render(request,'montlysummary.html')
 
 def searchbar(request):
-    group=groups.objects.get(group="Bank Accounts")
+    group=groups.objects.get(group="Bank Account")
     print(group)
     led=ledger.objects.filter(group=group.id)
-    print(led)
+    
 
     return render(request,'searchbar.html',{'l':led})
 
@@ -91,20 +91,20 @@ def updatepayment(request,id):
         accot=account.objects.get(id=pid)
         part=Particulars.objects.get(id=aid)
         pay=payment.objects.get(amount=aid)
-        leda=request.POST.get('account')
-        ledp=request.POST.get('particulars')
-        print(leda)
-        print(ledp)
-        
-        ledaccount=ledger.objects.get(name=leda)
-        ledparticulars=ledger.objects.get(name=ledp)
+        payd=payment.objects.get(id=pay.id)
+
+        accod=request.POST.get('accot')
+        partd=request.POST.get('part')
+
+        ledaccount=ledger.objects.get(name=accod)
+        ledparticulars=ledger.objects.get(name=partd)
              
-        if request.POST.get('particulars')=="":
+        if request.POST.get('part')=="":
             messages.info(request,'Enter the particulars')
             return redirect('voucher', bid)
 
         
-        elif request.POST.get('account')=="": 
+        elif request.POST.get('accot')=="": 
             messages.info(request,'Enter the account')
             return redirect('voucher', bid) 
         elif request.POST.get('amount')=="":
@@ -112,15 +112,38 @@ def updatepayment(request,id):
             return redirect('voucher', bid)
         else:
             part.amount=request.POST.get('amount')
-            part.particulars=ledparticulars
+           
             accot.account=ledaccount
+            part.particualrs=ledparticulars
+            
             accot.save()
             part.save()
-            pay.amount=part.id
+            amountid=part
+            payd.amount=amountid
             pay.save()
-        return redirect('voucher', bid)
+        return redirect('bankall', id)
     return redirect('voucher', bid)
 
+
+def bankall(request,id):
+    bak=bank.objects.get(id=id)
+    tran=transactiontype.objects.all()
+    return render(request,'bank.html',{'bak':bak,'tran':tran})
+
+def savebank(request,id):
+    bak=bank.objects.get(id=id)
+    if request.method=="POST":
+        
+
+
+            
+        
+
+
+            
+
+
+    
 
 
             
