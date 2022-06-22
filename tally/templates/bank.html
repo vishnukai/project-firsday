@@ -20,18 +20,18 @@
      
         <tr>
             <td>
-                <input list="transactiontype" name="part" placeholder="Enter the transactiontype" onkeyup="myFunction()" value="{{bak.amount.particualrs}}" style="background:#2f516f;border:none;color:white">
-                <datalist id="transactiontype">
+                <input list="transaction" name="transaction" placeholder="Enter the transactiontype" onkeyup="myFunction()" value="{{bak.transactiontype.transactiontype}}" style="background:#2f516f;border:none;color:white">
+                <datalist id="transaction">
       
                   
                    <ul id="myUL">
                        
                           
-                      <select name="transactiontype">
+                      <select >
                   
                        {% for led in tran %}
                        <option > 
-                     <li >{{  led.transactiontype.transactiontype }}</li></option>
+                     <li >{{  led.transactiontype }}</li></option>
                      {% endfor %}    
                     <option> <li><a href="">Create</a></li></option>
                    </select>

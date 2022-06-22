@@ -1,10 +1,26 @@
 {% extends 'base.html' %}
 {% block body %}
 {% load static %}
-<form method="POST" action="{% url 'updatepayment' bak.id %}">
-    {% csrf_token %}
+
 <div class="container-fluid">
  <div class="col-sm-12">
+<table style="width:1%">
+    <thead>
+        <tr>
+            <th><button style="background-color:#2f516f;border:none;" ><a href="{% url 'changecontra' bak.id %}" style="background-color:#2f516f;color:white;">Contra</a></button></th>
+            
+            <th><button style="background-color:#2f516f;border:none;">Journal</button></th>
+            <th><button style="background-color:#2f516f;border:none;">Receipt</button></th>
+            <th><button style="background-color:#2f516f;border:none;">Sales</button></th>
+            <th><button style="background-color:#2f516f;border:none;">Purchase</button></th>
+        </tr>
+        </tr>
+    </thead>
+</table><br>
+
+
+<form method="POST" action="{% url 'updatepayment' bak.id %}">
+    {% csrf_token %}
     <div class="row">
         <div class="col-sm-6">
       <h1>Payment</h1><h4>No.{{con.no}}   </h4>
@@ -18,10 +34,11 @@
 
     </div>
 
+
     <div class="row">
         <div class="col-sm-12">
         Account:
-        <input list="ledger"  placeholder="Enter the account" onkeyup="myFunction()" value="{{bak.date.account}}" style="background:#2f516f;border:none;color:white">
+        <input list="ledger" name="accot" placeholder="Enter the account" onkeyup="myFunction()" value="{{bak.date.account}}" style="background:#2f516f;border:none;color:white">
         <datalist id="ledger">
 
           
@@ -67,7 +84,7 @@
    
                 <tr>
                     <th> 
-                     <input list="ledger"  placeholder="Enter the Particulars" onkeyup="myFunction()" value="{{bak.amount.particualrs}}" style="background:#2f516f;border:none;color:white">
+                     <input list="ledger" name="part" placeholder="Enter the Particulars" onkeyup="myFunction()" value="{{bak.amount.particualrs}}" style="background:#2f516f;border:none;color:white">
                      <datalist id="ledger">
            
                        
@@ -77,7 +94,7 @@
                            <select name="particulars">
                        
                             {% for led in led %}
-                            <option > 
+                            <option value="{{led.id}}" > 
                           <li >{{  led.name }}</li></option>
                           {% endfor %}    
                          <option> <li><a href="">Create</a></li></option>

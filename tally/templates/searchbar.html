@@ -17,15 +17,12 @@
         <ul id="myUL">
             <h4>List of banks</h4>
             <li><a href="">Create</a></li>
-          <li><a href="{% url 'chequeprinting' %}">Federal bank</a></li>
-          <li><a href="#">HDFC</a></li>
-        
-          <li><a href="#">SBI</a></li>
-          <li><a href="#">AXIS</a></li>
-        
-          <li><a href="#">BANK OF BARODA</a></li>
-          <li><a href="#">UNION BANK</a></li>
-          <li><a href="#">UCO BANK</a></li>
+          
+          {% for led in l %}
+          <li><a href="{% url 'chequep' led.id %}">{{  led.name }}</a></li>
+     
+          {% endfor %}
+ 
         </ul>
         
         <script>

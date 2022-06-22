@@ -5,7 +5,10 @@
 <div class="col-sm-12">
     <div class=row>
     <div class="col-sm-6">
-Ledger:Federal bank
+        {% for bak in bank|slice:":1" %}
+Ledger: {{bak.amount.particualrs}}
+
+{% endfor %}
     </div>
     <div class="col-sm-6" style="text-align:right;">
         1-Apr-2022
@@ -57,13 +60,13 @@ Ledger:Federal bank
     {% for bank in bank %}
     <tr>
         <td>
-            <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value="100000">
+            <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value={{bank.amount.amount}}>
         </td>
         <td>
             {{bank.date.date}}
         </td>
         <td>
-           {{bank.amount.particualrs}}
+        <a href="{% url 'voucher' bank.id %}">  {{bank.amount.particualrs}}</a> 
         </td>
         <td>
             {{bank.instno}}
@@ -82,32 +85,7 @@ Ledger:Federal bank
         </td>
     </tr>
     {% endfor %}
-    <tr>
-        <td>
-            <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value="100000">
-        </td>
-        <td>
-            1-Apr-2022
-        </td>
-        <td>
-           Cash
-        </td>
-        <td>
-            
-        </td>
-        <td>
-            1-Apr-2022
-        </td>
-        <td>
-            No
-             
-           
-        </td>
-        <td   >
-            
-         100000
-        </td>
-    </tr>
+ 
     <tr>
        
         <td class="total-column" colspan="6">
@@ -120,22 +98,10 @@ Ledger:Federal bank
         Total
         </td>
         <td>
-            <span id="val"></span>
-            <script>
-            
-                var table = document.getElementById("table")
-                var  sumVal = 0;
-                
-                for(var i = 0; i < table.length; i++)
-                {
-                    sumVal = sumVal + parseInt(table[i].value);
-                }
-                
-                document.getElementById("val").innerHTML =  sumVal;
-                console.log(sumVal);
-                
-            </script>
+                   
+          {{sum}}
         </td>
+        
     </tr>
 
 </tbody>

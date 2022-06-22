@@ -4,8 +4,6 @@
 
 <div class="container-fluid">
  <div class="col-sm-12">
-
-
     <table style="width:1%">
         <thead>
             <tr>
@@ -19,11 +17,20 @@
             </tr>
         </thead>
     </table><br>
-    <form method="POST" action="{% url 'updatepayment' bak.id %}">
-        {% csrf_token %}
+
+
+<form method="POST" action="{% url 'updatepayment' bak.id %}">
+    {% csrf_token %}
     <div class="row">
         <div class="col-sm-6">
-      <h1>Contra</h1><h4>No.{{con.no}}   </h4>
+        {% if type == "Contra" %}
+      <h4>{{type}}</h1><h4>No.{{con}}   </h4>
+      {% elif type == "Payment" %}
+      <h4>{{type}}</h1><h4>No.{{con}}   </h4>
+      {% else %}
+      <h4>{{type}}</h1><h4>No.{{con}}   </h4>
+      {% endif %}
+
     </div>
     <div class="col-sm-6" style="text-align:right">
         <h4>{{bak.date.date }}</h4>
@@ -33,6 +40,7 @@
       </div>
 
     </div>
+
 
     <div class="row">
         <div class="col-sm-12">
