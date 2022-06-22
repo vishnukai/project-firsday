@@ -43,7 +43,8 @@ def montlysummary(request):
 
 def searchbar(request):
     group=groups.objects.get(group="Bank Account")
-    print(group)
+    tran=transactiontype.objects.get(transactiontype="cheque")
+
     led=ledger.objects.filter(group=group.id)
     
 
@@ -70,11 +71,8 @@ def voucher(request,id):
     
     if contra.objects.filter(amount=uid).exists():
         con=contra.objects.get(amount=uid)
-    
-
-
-        
-        return render(request,'voucher.html',{'bak':bak,'con':con})
+        led=ledger.objects.all()     
+        return render(request,'voucher.html',{'bak':bak,'con':con,'led':led})
        
     elif payment.objects.filter(amount=uid).exists():
          con=payment.objects.get(amount=uid)
@@ -88,39 +86,59 @@ def updatepayment(request,id):
         bid=bak.id
         pid=bak.date.id
         aid=bak.amount.id
+        
         accot=account.objects.get(id=pid)
         part=Particulars.objects.get(id=aid)
-        pay=payment.objects.get(amount=aid)
-        payd=payment.objects.get(id=pay.id)
+
 
         accod=request.POST.get('accot')
         partd=request.POST.get('part')
-
+        
         ledaccount=ledger.objects.get(name=accod)
         ledparticulars=ledger.objects.get(name=partd)
              
-        if request.POST.get('part')=="":
+        if partd is None:
             messages.info(request,'Enter the particulars')
-            return redirect('voucher', bid)
-
-        
-        elif request.POST.get('accot')=="": 
+            return redirect('voucher', bid)       
+        elif accod is None: 
             messages.info(request,'Enter the account')
             return redirect('voucher', bid) 
-        elif request.POST.get('amount')=="":
+        elif request.POST.get('amount') is None:
             messages.info(request,'Enter the amount')
             return redirect('voucher', bid)
-        else:
+
+        elif contra.objects.filter(amount=aid).exists():
+            con=contra.objects.get(amount=aid)
+            cond=contra.objects.get(id=con.id)
             part.amount=request.POST.get('amount')
-           
             accot.account=ledaccount
             part.particualrs=ledparticulars
-            
+            accot.save()
+            part.save()
+            amountid=part
+            cond.amount=amountid
+            cond.save()
+            bak.ledger=ledaccount
+            bak.amount=part
+            bak.date=accot
+            bak.save()
+            return redirect('bankall', id)
+
+        else:
+            pay=payment.objects.get(amount=aid)
+            payd=payment.objects.get(id=pay.id)
+            part.amount=request.POST.get('amount')
+            accot.account=ledaccount
+            part.particualrs=ledparticulars
             accot.save()
             part.save()
             amountid=part
             payd.amount=amountid
-            pay.save()
+            payd.save()
+            bak.ledger=ledaccount
+            bak.amount=part
+            bak.date=accot
+            bak.save()
         return redirect('bankall', id)
     return redirect('voucher', bid)
 
@@ -133,7 +151,45 @@ def bankall(request,id):
 def savebank(request,id):
     bak=bank.objects.get(id=id)
     if request.method=="POST":
+        bak.instno=request.POST.get('instno')
+        bak.instdate=request.POST.get('date')
+        transaction=request.POST.get('transaction')
+        trans=transactiontype.objects.get(transactiontype=transaction)
+        bak.transactiontype=trans
+        bak.save()
+        return redirect('chequep',id)
+
+def changecontra(request,id):
+    bak=bank.objects.get(id=id)
+    type="Contra"
+    led=ledger.objects.all()
+    con=contra.objects.all().last()
+    no=con.no+1    
+    return render(request,'convertcontra.html',{'bak':bak,'type':type,'led':led,'con':no})
+
+def changepayment(request,id):
+    bak=bank.objects.get(id=id)
+    type="Payment"
+    led=ledger.objects.all()
+    con=payment.objects.all().last()
+    no=con.no+1    
+    return render(request,'convertcontra.html',{'bak':bak,'type':type,'led':led,'con':no})
+
+
+
+
+
+
+
+            
         
+
+
+            
+
+
+    
+
 
 
             
