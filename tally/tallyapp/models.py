@@ -52,5 +52,11 @@ class bank(models.Model):
     date=models.ForeignKey(account,on_delete=models.CASCADE,blank=False)
     
    
-
+class receipt(models.Model):
+    no=models.IntegerField()   
+    date=models.ForeignKey(account,on_delete=models.CASCADE,blank=False)
+    amount=models.ForeignKey(Particulars,on_delete=models.CASCADE,blank=False)
+    transactiontype=models.ForeignKey(transactiontype,on_delete=models.CASCADE,blank=False)
+    instno=models.IntegerField()
+    instdate=models.DateField()
 
