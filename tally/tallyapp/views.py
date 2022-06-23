@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account, transactiontype
+from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account, receipt, transactiontype
 from django.db.models import Count
 from django.contrib import messages
 
@@ -112,10 +112,15 @@ def updatepayment(request,id):
             cond=contra.objects.get(id=con.id)
             part.amount=request.POST.get('amount')
             accot.account=ledaccount
+            date=request.POST.get('date')
+            accot.date=date
+            
             part.particualrs=ledparticulars
             accot.save()
             part.save()
             amountid=part
+            dateid=accot
+            cond.date=dateid
             cond.amount=amountid
             cond.save()
             bak.ledger=ledaccount
@@ -130,9 +135,12 @@ def updatepayment(request,id):
             part.amount=request.POST.get('amount')
             accot.account=ledaccount
             part.particualrs=ledparticulars
+            accot.date=date
             accot.save()
             part.save()
+            dateid=accot
             amountid=part
+            payd.date=dateid
             payd.amount=amountid
             payd.save()
             bak.ledger=ledaccount
@@ -140,7 +148,7 @@ def updatepayment(request,id):
             bak.date=accot
             bak.save()
         return redirect('bankall', id)
-    return redirect('voucher', bid)
+    return redirect('voucher', id)
 
 
 def bankall(request,id):
@@ -164,7 +172,10 @@ def changecontra(request,id):
     type="Contra"
     led=ledger.objects.all()
     con=contra.objects.all().last()
-    no=con.no+1    
+    if contra.objects.filter(amount=bak.amount).exists():
+        no=con.no 
+    else:
+        no=con.no+1    
     return render(request,'convertcontra.html',{'bak':bak,'type':type,'led':led,'con':no})
 
 def changepayment(request,id):
@@ -172,20 +183,189 @@ def changepayment(request,id):
     type="Payment"
     led=ledger.objects.all()
     con=payment.objects.all().last()
-    no=con.no+1    
+    try:
+        if payment.objects.filter(amount=bak.amount).exists():
+            no=con.no 
+        else:
+            no=con.no+1
+    except:
+        no=1
+       
     return render(request,'convertcontra.html',{'bak':bak,'type':type,'led':led,'con':no})
 
+def changerecipt(request,id):
+    bak=bank.objects.get(id=id)
+    type="Receipt"
+    led=ledger.objects.all()
+    con=receipt.objects.all().last()
+    try:
+        if receipt.objects.filter(amount=bak.amount).exists():
+           no=con.no 
+        else:
+           no=con.no+1
+    except:
+        no=1   
+    return render(request,'convertcontra.html',{'bak':bak,'type':type,'led':led,'con':no})
+
+def updateconvertpayment(request,id):
+     bak=bank.objects.get(id=id)
+     if contra.objects.filter(amount=bak.amount).exists():
+        return redirect('updatepayment',id)
+     elif payment.objects.filter(amount=bak.amount).exists():
+        p=payment.objects.get(amount=bak.amount)
+        p.delete()
+        try:
+            con=contra.objects.all().last()
+            no=con.no+1
+        except:
+            no=1   
+        bak=bank.objects.get(id=id)
+        bid=bak.id
+        pid=bak.date.id
+        aid=bak.amount.id      
+        accot=account.objects.get(id=pid)
+        part=Particulars.objects.get(id=aid)
+        accod=request.POST.get('accot')
+        partd=request.POST.get('part')
+        ledaccount=ledger.objects.get(name=accod)
+        ledparticulars=ledger.objects.get(name=partd)
+        date=request.POST.get('date')
+        part.amount=request.POST.get('amount')
+        accot.account=ledaccount
+        accot.date=date
+        part.particualrs=ledparticulars
+        accot.save()
+        part.save()
+        amountid=part
+        dateid=accot
+        con=contra(no=no,amount=amountid,date=dateid)
+        con.save()
+        bak.ledger=ledaccount
+        bak.amount=part
+        bak.date=accot
+        bak.save()
+        return redirect('bankall', id)
 
 
-
-
-
-
-            
+def updateconvertcontra(request,id):
+     bak=bank.objects.get(id=id)
+     if payment.objects.filter(amount=bak.amount).exists():
+        return redirect('updatepayment',id)
+     elif contra.objects.filter(amount=bak.amount).exists():
+        p=contra.objects.get(amount=bak.amount)
+        p.delete()
+        try:
+            con=payment.objects.all().last()
+            no=con.no+1   
+        except:
+            no=1
+        bak=bank.objects.get(id=id) 
         
+        pid=bak.date.id
+        aid=bak.amount.id      
+        accot=account.objects.get(id=pid)
+        part=Particulars.objects.get(id=aid)
+        accod=request.POST.get('accot')
+        partd=request.POST.get('part')
+        ledaccount=ledger.objects.get(name=accod)
+        ledparticulars=ledger.objects.get(name=partd)
+        date=request.POST.get('date')
+        part.amount=request.POST.get('amount')
+        accot.account=ledaccount
+        accot.date=date
+        part.particualrs=ledparticulars
+        accot.save()
+        part.save()
+        amountid=part
+        dateid=accot
+        con=payment(no=no,amount=amountid,date=dateid)
+        con.save()
+        bak.ledger=ledaccount
+        bak.amount=part
+        bak.date=accot
+        bak.save()
+        return redirect('bankall', id)
 
-
+def updateconvertreceipt(request,id):
+    bak=bank.objects.get(id=id)
+    if payment.objects.filter(amount=bak.amount).exists():
+        p=payment.objects.get(amount=bak.amount)
+        p.delete()
+        if request.method=="POST":
+            pid=bak.date.id
+            aid=bak.amount.id   
+            accot=account.objects.get(id=pid)
+            part=Particulars.objects.get(id=aid)
+            accod=request.POST.get('accot')
+            partd=request.POST.get('part')
+            ledaccount=ledger.objects.get(name=accod)
+            ledparticulars=ledger.objects.get(name=partd)
+            date=request.POST.get('date')
+            part.amount=request.POST.get('amount')
+            accot.account=ledaccount
+            accot.date=date
+            part.particualrs=ledparticulars
+            accot.save()
+            part.save()
+            amountid=part
+            dateid=accot
+            try:
+                recpt=receipt.objects.all().last()
+                no=recpt.no+1
+            except:
+                no=1
+            rec=receipt(no=no,date=dateid,amount=amountid)
+            rec.save()
             
+            return redirect('receiptbank',id)
+    else:
+        p=contra.objects.get(amount=bak.amount)
+        p.delete()
+        if request.method=="POST":
+            pid=bak.date.id
+            aid=bak.amount.id   
+            accot=account.objects.get(id=pid)
+            part=Particulars.objects.get(id=aid)
+            accod=request.POST.get('accot')
+            partd=request.POST.get('part')
+            ledaccount=ledger.objects.get(name=accod)
+            ledparticulars=ledger.objects.get(name=partd)
+            date=request.POST.get('date')
+            part.amount=request.POST.get('amount')
+            accot.account=ledaccount
+            accot.date=date
+            part.particualrs=ledparticulars
+            accot.save()
+            part.save()
+            amountid=part
+            dateid=accot
+            try:
+                recpt=receipt.objects.all().last()
+                no=recpt.no+1
+            except:
+                no=1
+            rec=receipt(no=no,date=dateid,amount=amountid)
+            rec.save()
+            
+            return redirect('receiptbank',id)
+
+def receiptbank(request,id):
+    bak=bank.objects.get(id=id)
+    tran=transactiontype.objects.all()
+    return render(request,'bankreceipt.html',{'bak':bak,'tran':tran})
+
+def savereceiptbank(request,id):
+    ba=bank.objects.get(id=id)
+    ba.delete()
+    if request.method=="POST":
+        bak=receipt.objects.all().last()
+        bak.instno=request.POST.get('instno')
+        bak.instdate=request.POST.get('date')
+        transaction=request.POST.get('transaction')
+        trans=transactiontype.objects.get(transactiontype=transaction)
+        bak.transactiontype=trans
+        bak.save()
+        return redirect('bankall',id)
 
 
     
