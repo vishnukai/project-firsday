@@ -11,39 +11,46 @@ def chequeprinting(request):
     return render(request,'chequeprinting.html')
 
 def chequeregister(request):
+    # bab=bank.objects.values('ledger').Count('ledger')
+    # print(bab)
 
 
     b=bank.objects.all().values('ledger').annotate(total=Count('ledger'))
+    print(b)
+    bak=ledger.objects.all()
 
-    bak=list(b)
-    a_list = []     
+    # bak=list(b)
+    # a_list = []     
 
-    for i in range(0,len(bak)):
+    # for i in range(0,len(bak)):
 
-        a=bak[i]
-        for i in a:
-            if i == "ledger":
+    #     a=bak[i]
+    #     for i in a:
+    #         if i == "ledger":
                 
-                uid=a[i]
-                led=ledger.objects.get(id=uid)
-                c=led.name
-                a.update({'ledger':c})
-                a_list.append(a)
+    #             uid=a[i]
+    #             led=ledger.objects.get(id=uid)
+    #             c=led.name
+    #             a.update({'ledger':c})
+    #             a_list.append(a)
                
                 
                 
-            else:
-                pass           
-        
-    return render(request,'chequeregister.html',{'bak':a_list})
+    #         else:
+    #             pass
+    
+    # group=groups.objects.get(group="Bank Account")
+    
+
+    # led=ledger.objects.filter(group=group.id)          
+    return render(request,'chequeregister.html',{'l':b,'bak':bak})
 
 
-def montlysummary(request):
-    return render(request,'montlysummary.html')
+
 
 def searchbar(request):
     group=groups.objects.get(group="Bank Account")
-    tran=transactiontype.objects.get(transactiontype="cheque")
+    
 
     led=ledger.objects.filter(group=group.id)
     
@@ -51,7 +58,9 @@ def searchbar(request):
     return render(request,'searchbar.html',{'l':led})
 
 def searchledger(request):
-    return render(request,'searhbarledger.html')
+    group=groups.objects.get(group="Bank Account")
+    led=ledger.objects.filter(group=group.id)
+    return render(request,'searhbarledger.html',{'l':led})
 
 
 def chequep(request,id):
@@ -61,7 +70,6 @@ def chequep(request,id):
     for  back in back:
         b=back.amount.amount
         sum=sum+b
-        
     return render(request,'chequeprinting.html',{'bank':bak,'sum':sum})
 
 
@@ -78,6 +86,8 @@ def voucher(request,id):
          con=payment.objects.get(amount=uid)
          led=ledger.objects.all()
          return render(request,'payment.html',{'bak':bak,'con':con,'led':led})
+    else:
+        return redirect('chequep',id)
 
 
 def updatepayment(request,id):
@@ -318,9 +328,10 @@ def updateconvertreceipt(request,id):
             rec.save()
             
             return redirect('receiptbank',id)
+        return redirect(id)
     else:
-        p=contra.objects.get(amount=bak.amount)
-        p.delete()
+        # p=contra.objects.get(amount=bak.amount)
+        # p.delete()
         if request.method=="POST":
             pid=bak.date.id
             aid=bak.amount.id   
@@ -339,15 +350,20 @@ def updateconvertreceipt(request,id):
             part.save()
             amountid=part
             dateid=accot
+            transaction=bak.transactiontype.id
+            trans=transactiontype.objects.get(id=transaction)
             try:
                 recpt=receipt.objects.all().last()
                 no=recpt.no+1
             except:
                 no=1
-            rec=receipt(no=no,date=dateid,amount=amountid)
+            instno=bak.instno
+            instdate=bak.instdate
+            rec=receipt(no=no,date=dateid,amount=amountid,transactiontype=trans,instno=instno,instdate=instdate)
             rec.save()
             
             return redirect('receiptbank',id)
+    return redirect('voucher',id)
 
 def receiptbank(request,id):
     bak=bank.objects.get(id=id)
@@ -365,10 +381,31 @@ def savereceiptbank(request,id):
         trans=transactiontype.objects.get(transactiontype=transaction)
         bak.transactiontype=trans
         bak.save()
-        return redirect('bankall',id)
+        return redirect('home')
+
+def instrument(request,id):
+    sum=0
+    bak=bank.objects.filter(ledger=id)
+    back=bak
+    con=contra.objects.all()
+    pay=payment.objects.all()
+
+    for  back in back:
+        b=back.amount.amount
+        sum=sum+b
+    return render(request,'instrument.html',{'bank':bak,'sum':sum,'con':con,'pay':pay})
+
+            
+# def monthlysummary(request,id):
+#     receipt.objects.get(instdate__range=())
 
 
-    
+
+
+
+
+
+
 
 
 
@@ -381,12 +418,6 @@ def savereceiptbank(request,id):
 
     
 
-
-            
-        
-
-
-            
 
 
     
