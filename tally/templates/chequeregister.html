@@ -45,12 +45,13 @@
 
             <tbody>
   
-   {% for b in bak %}
-   
+   {% for b in l %}
+   {% for bak in bak %}
+   {% if bak.id == b.ledger %}   
                 <tr>
                     <th>
                       
-                     {{b.ledger}}
+                    <a href = "{% url 'instrument' bak.id %}" >{{bak}}</a> 
                     </th>
                     <th>
                        Available Cheques
@@ -70,7 +71,8 @@
                    
                     </th>
                 </tr>
-                
+                {% endif %}
+                {% endfor %}
              
               {% endfor %}
                 
