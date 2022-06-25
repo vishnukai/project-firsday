@@ -1,7 +1,14 @@
+from curses.textpad import rectangle
+import datetime
 from django.shortcuts import render, redirect
 from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account, receipt, transactiontype
 from django.db.models import Count
 from django.contrib import messages
+import datetime
+import fiscalyear
+from fiscalyear import *
+from dateutil import relativedelta
+
 
 # Create your views here.
 def home(request):
@@ -396,8 +403,117 @@ def instrument(request,id):
     return render(request,'instrument.html',{'bank':bak,'sum':sum,'con':con,'pay':pay})
 
             
-# def monthlysummary(request,id):
-#     receipt.objects.get(instdate__range=())
+def monthlysummary(request):
+    
+    # receipt.objects.values_list('instdate').annotate(total = Count('orderid')
+    red=receipt.objects.all()  
+    
+    
+
+    # todays_date = datetime.date.today()
+    # fiscalyear.setup_fiscal_calendar(start_month=4)
+    # fy = FiscalYear.current()
+    # current_fiscal_year = FiscalYear.current()
+    # d = datetime.datetime(current_fiscal_year.start.year, current_fiscal_year.start.month, current_fiscal_year.start.day)
+    # for m in range(0, 12):
+    #     next_month_start = d + relativedelta.relativedelta(months=m, day=1)
+    #     print(next_month_start.strftime('%Y-%m-%d'))
+    # month={}
+    # may=0
+    # june=0
+    # july=0
+    # august=0
+    # sep=0
+    # oct=0
+    # nov=0
+    # dec=0
+    # jan=0
+    # feb=0
+    # march=0
+    # print(todays_date.day)
+    # print(rec.instdate.month)
+    # for rec in rec:    
+    #   for i in range(1,13):
+    #     if i==rec.instdate.month:
+    #         if rec.instdate.day >= todays_date.day:
+    #             jan=jan+1
+    #             month[i]=jan
+    #         else:
+    #             pass
+
+    #     elif i==rec.instdate.month:
+    #         if rec.instdate.date >= todays_date.day:
+    #             feb=feb+1
+    #             month[i]=feb
+    #         else:
+    #             pass
+            
+    #     elif i==rec.instdate.month:
+    #         if rec.instdate.date >= todays_date.day:
+    #             march=march+1
+    #             month[i]=march
+    #         else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #          if rec.instdate.date >= todays_date.day:
+    #             april=april+1
+    #             month[i]=april
+    #          else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #          if rec.instdate.date >= todays_date.day:
+    #             may=may+1
+    #             month[i]=may
+    #          else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #         if rec.instdate.date >= todays_date.day:
+    #             june=june+1
+    #             month[i]=june
+    #         else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #         if rec.instdate.date >= todays_date.day:
+    #             july=july+1
+    #             month[i]=july
+    #         else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #          if rec.instdate.date >= todays_date.day:
+    #             august=august+1
+    #             month[i]=august
+    #          else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #          if rec.instdate.date >= todays_date.day:
+    #             sep=sep+1
+    #             month[i]=sep
+    #          else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #         if rec.instdate.date >= todays_date.day:
+    #             oct=oct+1
+    #             month[i]=oct
+    #         else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #          if rec.instdate.date >= todays_date.day:
+    #             nov=nov+1
+    #             month[i]=nov
+    #          else:
+    #             pass
+    #     elif i==rec.instdate.month:
+    #          if rec.instdate.date >= todays_date.day:
+    #           dec=dec+1
+    #           month[i]=dec
+    #          else:
+    #             pass
+    #     else:
+    #         pass
+    # print(month)
+
+
+    return render(request,'montlysummary.html')
 
 
 
@@ -417,8 +533,3 @@ def instrument(request,id):
 
 
     
-
-
-
-    
-
