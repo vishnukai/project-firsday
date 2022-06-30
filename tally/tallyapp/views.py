@@ -1,4 +1,5 @@
 
+
 import datetime
 
 from django.shortcuts import render, redirect
@@ -110,11 +111,8 @@ def updatepayment(request,id):
         bid=bak.id
         pid=bak.date.id
         aid=bak.amount.id
-        
         accot=account.objects.get(id=pid)
         part=Particulars.objects.get(id=aid)
-
-
         accod=request.POST.get('accot')
         partd=request.POST.get('part')
         
@@ -792,7 +790,93 @@ def getbank(request,id):
 
     con=receipt.objects.get(amount=uid)
         
-    return render(request,'bank.html',{'rec':rec,'led':led,'con':con})
+    return render(request,'receipt.html',{'rec':rec,'led':led,'con':con})
+
+def editreceipt(request,id):
+    if request.method=="POST":
+
+        bak=bankreceipt.objects.get(id=id)
+        uid=bak.ledger.id
+        led=ledger.objects.get(id=uid)
+        nid=led.id
+        bid=bak.id
+        pid=bak.date.id
+        aid=bak.amount.id
+        accot=account.objects.get(id=pid)
+        part=Particulars.objects.get(id=aid)
+        accod=request.POST.get('accot')
+        partd=request.POST.get('part')
+        
+        ledaccount=ledger.objects.get(name=accod)
+        ledparticulars=ledger.objects.get(name=partd)
+                
+        if partd is None:
+            messages.info(request,'Enter the particulars')
+            return redirect('getbank', id)       
+        elif accod is None: 
+            messages.info(request,'Enter the account')
+            return redirect('getbank', id) 
+        elif request.POST.get('amount') is None:
+            messages.info(request,'Enter the amount')
+            return redirect('getbank', id)
+
+        elif receipt.objects.filter(amount=aid).exists():
+            con=receipt.objects.get(amount=aid)
+            cond=receipt.objects.get(id=con.id)
+            part.amount=request.POST.get('amount')
+            accot.account=ledaccount
+            date=request.POST.get('date')
+            accot.date=date
+            
+            part.particualrs=ledparticulars
+            accot.save()
+            part.save()
+            amountid=part
+            dateid=accot
+            cond.date=dateid
+            cond.amount=amountid
+            cond.save()
+            bak.ledger=ledaccount
+            bak.amount=part
+            bak.date=accot
+            bak.save()
+            return redirect('bankal', id)
+def bankal(request,id):
+    bak=bankreceipt.objects.get(id=id)
+    tran=transactiontype.objects.all()
+    return render(request,'bankreceiptedit.html',{'bak':bak,'tran':tran})
+
+def editreceiptbank(request,id):
+    bak=bankreceipt.objects.get(id=id)
+    uid=bak.ledger.id
+    led=ledger.objects.get(id=uid)
+    pd=led.id
+
+    if request.method=="POST":
+        bak.instno=request.POST.get('instno')
+        bak.instdate=request.POST.get('date')
+        transaction=request.POST.get('transaction')
+        trans=transactiontype.objects.get(transactiontype=transaction)
+        bak.transactiontype=trans
+        bak.save()
+        return redirect('home')
+
+def getjuly(request,id):
+    fiscalyear.setup_fiscal_calendar(start_month=1)
+    fy = FiscalYear.current()
+    current_fiscal_year = FiscalYear.current()
+    d = datetime.datetime(current_fiscal_year.start.year, current_fiscal_year.start.month, current_fiscal_year.start.day)
+    print(d)
+    for m in range(6, 7):
+        for n in range(6,7):
+            next_month_start = d + relativedelta.relativedelta(months=m, day=1)
+            next_month_end = d + relativedelta.relativedelta(months=n, day=31)
+            print(next_month_start.strftime('%Y-%m-%d'))
+            print(next_month_end.strftime('%Y-%m-%d'))
+            rec=bankreceipt.objects.filter(instdate__gte=next_month_start,instdate__lte=next_month_end,ledger=id)
+            print(rec)
+    return render(request,'receiptbank.html',{'rec':rec})  
+
 
 
 
