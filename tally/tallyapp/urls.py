@@ -22,5 +22,11 @@ urlpatterns = [
     path('receiptbank/<int:id>',views.receiptbank,name='receiptbank'),
     path('savereceiptbank/<int:id>',views.savereceiptbank,name='savereceiptbank'),
     path('instrument/<int:id>',views.instrument,name='instrument'),
-    # path('montlysummary/<int:id>',views.monthlysummary,name='montlysummary')
+    path('montlysummary/<int:id>',views.monthlysummary,name='montlysummary'),
+    path('getjune/<int:id>',views.getjune,name='getjune'),
+    path('getbank/<int:id>',views.getbank,name='getbank'),
+    path('editreceipt/<int:id>',views.editreceipt,name='editreceipt'),
+    path('bankal/<int:id>',views.bankal,name='bankal'),
+    path('editreceiptbank/<int:id>',views.editreceiptbank,name='editreceiptbank'),
+    path('getjuly/<int:id>',views.getjuly,name='getjuly')
 ]
