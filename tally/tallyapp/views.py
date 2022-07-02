@@ -1,15 +1,15 @@
 
-
 import datetime
 
 from django.shortcuts import render, redirect
-from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account, receipt, transactiontype,bankreceipt
+from tallyapp.models import  Particulars, groups,ledger,bank,contra,payment,account, receipt, transactiontype,Vouchertype
 from django.db.models import Count
 from django.contrib import messages
 import datetime
 import fiscalyear
 from fiscalyear import *
 from dateutil import relativedelta
+from django.db.models import Q
 
 
 # Create your views here.
@@ -24,7 +24,7 @@ def chequeregister(request):
     # print(bab)
 
 
-    b=bank.objects.all().values('ledger').annotate(total=Count('ledger'))
+    b=bank.objects.filter(Q(vouchertype='1')|Q (vouchertype='2')).filter(transactiontype=1).values('ledger').annotate(total=Count('ledger'))
     print(b)
     bak=ledger.objects.all()
 
@@ -76,7 +76,7 @@ def chequep(request,id):
     sum=0
     led=ledger.objects.get(id=id)
     uid=led.id
-    bak=bank.objects.filter(ledger=uid)
+    bak=bank.objects.filter(ledger=uid).filter(Q(vouchertype='1')|Q (vouchertype='2')).filter(transactiontype=1)
     back=bak
     for  back in back:
         b=back.amount.amount
@@ -98,8 +98,8 @@ def voucher(request,id):
          con=payment.objects.get(amount=uid)
          led=ledger.objects.all()
          return render(request,'payment.html',{'bak':bak,'con':con,'led':led})
-    # else:
-    #     return redirect('chequep',id)
+# else:
+#     return redirect('chequep',id)
 
 
 def updatepayment(request,id):
@@ -111,8 +111,11 @@ def updatepayment(request,id):
         bid=bak.id
         pid=bak.date.id
         aid=bak.amount.id
+        
         accot=account.objects.get(id=pid)
         part=Particulars.objects.get(id=aid)
+
+
         accod=request.POST.get('accot')
         partd=request.POST.get('part')
         
@@ -199,7 +202,11 @@ def savebank(request,id):
 
 def changecontra(request,id):
     bak=bank.objects.get(id=id)
-    type="Contra"
+    v=Vouchertype.objects.all()
+    for v in v:
+        if v.vouchertype=='Contra':
+            uid=v.id
+    type=Vouchertype.objects.get(id=uid)
     led=ledger.objects.all()
     con=contra.objects.all().last()
     if contra.objects.filter(amount=bak.amount).exists():
@@ -210,7 +217,12 @@ def changecontra(request,id):
 
 def changepayment(request,id):
     bak=bank.objects.get(id=id)
-    type="Payment"
+    v=Vouchertype.objects.all()
+    for v in v:
+        if v.vouchertype=='Payment':
+            uid=v.id
+        
+    type=Vouchertype.objects.get(id=uid)
     led=ledger.objects.all()
     con=payment.objects.all().last()
     try:
@@ -226,7 +238,13 @@ def changepayment(request,id):
 
 def changerecipt(request,id):
     bak=bank.objects.get(id=id)
-    type="Receipt"
+    v=Vouchertype.objects.all()
+
+    for v in v:
+        if v.vouchertype=='Receipt':
+            uid=v.id
+        
+    type=Vouchertype.objects.get(id=uid)
     led=ledger.objects.all()
     con=receipt.objects.all().last()
     try:
@@ -253,7 +271,13 @@ def updateconvertpayment(request,id):
         bak=bank.objects.get(id=id)
         bid=bak.id
         pid=bak.date.id
-        aid=bak.amount.id      
+        aid=bak.amount.id 
+        vid=request.POST.get('voucher')   
+        v=Vouchertype.objects.all()
+        for v in v:
+            if v == vid:
+                zid=v.id
+                
         accot=account.objects.get(id=pid)
         part=Particulars.objects.get(id=aid)
         accod=request.POST.get('accot')
@@ -269,8 +293,10 @@ def updateconvertpayment(request,id):
         part.save()
         amountid=part
         dateid=accot
-        con=contra(no=no,amount=amountid,date=dateid)
+        print(vid)
+        con=contra(vouchertype=zid,ledger=ledaccount,no=no,amount=amountid,date=dateid)
         con.save()
+        bak.vouchertype=zid
         bak.ledger=ledaccount
         bak.amount=part
         bak.date=accot
@@ -296,6 +322,9 @@ def updateconvertcontra(request,id):
         aid=bak.amount.id      
         accot=account.objects.get(id=pid)
         part=Particulars.objects.get(id=aid)
+        vid=request.POST.get('voucher')   
+        v=Vouchertype.objects.get(vouchertype=vid)
+        zid=v.id
         accod=request.POST.get('accot')
         partd=request.POST.get('part')
         ledaccount=ledger.objects.get(name=accod)
@@ -309,8 +338,9 @@ def updateconvertcontra(request,id):
         part.save()
         amountid=part
         dateid=accot
-        con=payment(no=no,amount=amountid,date=dateid)
+        con=payment(vouchertype=zid,ledger=ledaccount,no=no,amount=amountid,date=dateid)
         con.save()
+        bak.vouchertype=zid
         bak.ledger=ledaccount
         bak.amount=part
         bak.date=accot
@@ -329,6 +359,7 @@ def updateconvertreceipt(request,id):
             part=Particulars.objects.get(id=aid)
             accod=request.POST.get('accot')
             partd=request.POST.get('part')
+            vid=request.POST.get('voucher')
             ledaccount=ledger.objects.get(name=accod)
             ledparticulars=ledger.objects.get(name=partd)
             date=request.POST.get('date')
@@ -345,10 +376,12 @@ def updateconvertreceipt(request,id):
                 no=recpt.no+1
             except:
                 no=1
-            rec=receipt(no=no,date=dateid,amount=amountid)
+            rec=receipt(vouchertype=vid,ledger=ledaccount,no=no,date=dateid,amount=amountid)
             rec.save()
+            bak.vouchertype=vid
+            bak.save()
             
-            return redirect('receiptbank',id)
+            return redirect('bankall',id)
         
     else:
         p=contra.objects.get(amount=bak.amount.id)
@@ -360,6 +393,7 @@ def updateconvertreceipt(request,id):
             part=Particulars.objects.get(id=aid)
             accod=request.POST.get('accot')
             partd=request.POST.get('part')
+            vid=request.POST.get('voucher')
             ledaccount=ledger.objects.get(name=accod)
             ledparticulars=ledger.objects.get(name=partd)
             date=request.POST.get('date')
@@ -378,10 +412,12 @@ def updateconvertreceipt(request,id):
                 no=recpt.no+1
             except:
                 no=1
-            rec=receipt(no=no,date=dateid,amount=amountid)
+            rec=receipt(ledger=ledaccount,vouchertype=vid,no=no,date=dateid,amount=amountid)
             rec.save()
+            bak.vouchertype=vid
+            bak.save()
             
-            return redirect('receiptbank',id)
+            return redirect('bankall',id)
     return redirect('voucher',id)
 
 def receiptbank(request,id):
@@ -404,7 +440,7 @@ def savereceiptbank(request,id):
         instdate=request.POST.get('date')
         transaction=request.POST.get('transaction')
         trans=transactiontype.objects.get(transactiontype=transaction)
-        rec=bankreceipt(ledger=led,date=acc,amount=par,instno=instno,instdate=instdate,transactiontype=trans)
+        rec=bank(ledger=led,date=acc,amount=par,instno=instno,instdate=instdate,transactiontype=trans)
         bak=bank.objects.get(id=id)
         bak.delete()
         rec.save()
@@ -425,7 +461,7 @@ def instrument(request,id):
 
             
 def monthlysummary(request, id):
-    a=bankreceipt.objects.filter(ledger=id).values_list('id','instdate')
+    a=bank.objects.filter(ledger=id).values_list('id','instdate')
     print(a)
     b=dict(a)
     print(b)
@@ -576,7 +612,7 @@ def monthlysummary(request, id):
         else:
             pass
     print(month)
-    amount=bankreceipt.objects.filter(ledger=id).values('instdate','amount')
+    amount=bank.objects.filter(ledger=id).values('instdate','amount')
     
     
    
@@ -599,168 +635,168 @@ def monthlysummary(request, id):
 
 
     for course in amount:
-        
-        if 1==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                j=j+par.amount
-                total[1]=j
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                j=j+par.amount
-                total[1]=j
-            else:
-                pass
+        for i in range(1,13):
+            if i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    j=j+par.amount
+                    total[i]=j
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    j=j+par.amount
+                    total[i]=j
+                else:
+                    pass
 
-            
-        elif 2==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                f=f+par.amount
-                total[2]=f
-            
-            elif(course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                f=f+par.amount
-                total[2]=f
-            else:
-                pass
-        elif 3==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                mar=mar+par.amount
-                total[3]=mar
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                mar=mar+par.amount
-                total[3]=mar
-            else:
-                pass
-        elif 4==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                ap=ap+par.amount
-                total[4]=ap
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                ap=ap+par.amount
-                total[4]=ap
-            else:
-                pass
-        elif 5==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                ma=ma+par.amount
-                total[5]=ma
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                ma=ma+par.amount
-                total[5]=ma
-            else:
-                pass
-        elif 6==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                j=j+par.amount
-                total[6]=j
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                j=j+par.amount
-                total[6]=j
-            else:
-                pass
+                
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    f=f+par.amount
+                    total[i]=f
+                
+                elif(course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    f=f+par.amount
+                    total[i]=f
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    mar=mar+par.amount
+                    total[i]=mar
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    mar=mar+par.amount
+                    total[i]=mar
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    ap=ap+par.amount
+                    total[i]=ap
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    ap=ap+par.amount
+                    total[i]=ap
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    ma=ma+par.amount
+                    total[i]=ma
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    ma=ma+par.amount
+                    total[i]=ma
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    j=j+par.amount
+                    total[i]=j
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    j=j+par.amount
+                    total[i]=j
+                else:
+                    pass
 
-        elif 7==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                ju=ju+par.amount
-                total[7]=ju
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                ju=ju+par.amount
-                total[7]=ju
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    ju=ju+par.amount
+                    total[i]=ju
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    ju=ju+par.amount
+                    total[i]=ju
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    au=au+par.amount
+                    total[i]=au
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    au=au+par.amount
+                    total[i]=au
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    s=s+par.amount
+                    total[i]=s
+                elif (course['instdate'].day)>todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    s=s+par.amount
+                    total[i]=s
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    o=o+par.amount
+                    total[i]=o
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    o=o+par.amount
+                    total[i]=o
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    n=n+par.amount
+                    total[i]=n
+                elif (course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    n=n+par.amount
+                    total[i]=n
+                else:
+                    pass
+            elif i==(course['instdate'].month):
+                if (course['instdate'].month)>todays_date.month:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    de=de+par.amount
+                    total[i]=de
+                elif(course['instdate'].day)>=todays_date.day:
+                    e=course['amount']
+                    par=Particulars.objects.get(id=e)
+                    de=de+par.amount
+                    total[i]=de
             else:
                 pass
-        elif 8==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                au=au+par.amount
-                total[8]=au
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                au=au+par.amount
-                total[8]=au
-            else:
-                pass
-        elif 9==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                s=s+par.amount
-                total[9]=s
-            elif (course['instdate'].day)>todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                s=s+par.amount
-                total[i]=s
-            else:
-                pass
-        elif 10==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                o=o+par.amount
-                total[10]=o
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                o=o+par.amount
-                total[10]=o
-            else:
-                pass
-        elif 10==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                n=n+par.amount
-                total[11]=n
-            elif (course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                n=n+par.amount
-                total[11]=n
-            else:
-                pass
-        elif 11==(course['instdate'].month):
-            if (course['instdate'].month)>todays_date.month:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                de=de+par.amount
-                total[12]=de
-            elif(course['instdate'].day)>=todays_date.day:
-                e=course['amount']
-                par=Particulars.objects.get(id=e)
-                de=de+par.amount
-                total[12]=de
-        else:
-            pass
-    bak=bankreceipt.objects.filter(ledger=id)
+    bak=bank.objects.filter(ledger=id)
     print(total)
     print(amount)
     return render(request,'montlysummary.html',{'month':month,'total':total,'bak':bak,'id':id})
@@ -776,107 +812,9 @@ def getjune(request,id):
             next_month_end = d + relativedelta.relativedelta(months=n, day=30)
             print(next_month_start.strftime('%Y-%m-%d'))
             print(next_month_end.strftime('%Y-%m-%d'))
-            rec=bankreceipt.objects.filter(instdate__gte=next_month_start,instdate__lte=next_month_end,ledger=id)
+            rec=bank.objects.filter(instdate__gte=next_month_start,instdate__lte=next_month_end,ledger=id)
             print(rec)
-    return render(request,'receiptbank.html',{'rec':rec})
-
-def getbank(request,id): 
-    rec=bankreceipt.objects.get(id=id)
-    led=ledger.objects.all()
-    uid=rec.amount.id
-    print(uid)
-    
-    
-
-    con=receipt.objects.get(amount=uid)
-        
-    return render(request,'receipt.html',{'rec':rec,'led':led,'con':con})
-
-def editreceipt(request,id):
-    if request.method=="POST":
-
-        bak=bankreceipt.objects.get(id=id)
-        uid=bak.ledger.id
-        led=ledger.objects.get(id=uid)
-        nid=led.id
-        bid=bak.id
-        pid=bak.date.id
-        aid=bak.amount.id
-        accot=account.objects.get(id=pid)
-        part=Particulars.objects.get(id=aid)
-        accod=request.POST.get('accot')
-        partd=request.POST.get('part')
-        
-        ledaccount=ledger.objects.get(name=accod)
-        ledparticulars=ledger.objects.get(name=partd)
-                
-        if partd is None:
-            messages.info(request,'Enter the particulars')
-            return redirect('getbank', id)       
-        elif accod is None: 
-            messages.info(request,'Enter the account')
-            return redirect('getbank', id) 
-        elif request.POST.get('amount') is None:
-            messages.info(request,'Enter the amount')
-            return redirect('getbank', id)
-
-        elif receipt.objects.filter(amount=aid).exists():
-            con=receipt.objects.get(amount=aid)
-            cond=receipt.objects.get(id=con.id)
-            part.amount=request.POST.get('amount')
-            accot.account=ledaccount
-            date=request.POST.get('date')
-            accot.date=date
-            
-            part.particualrs=ledparticulars
-            accot.save()
-            part.save()
-            amountid=part
-            dateid=accot
-            cond.date=dateid
-            cond.amount=amountid
-            cond.save()
-            bak.ledger=ledaccount
-            bak.amount=part
-            bak.date=accot
-            bak.save()
-            return redirect('bankal', id)
-def bankal(request,id):
-    bak=bankreceipt.objects.get(id=id)
-    tran=transactiontype.objects.all()
-    return render(request,'bankreceiptedit.html',{'bak':bak,'tran':tran})
-
-def editreceiptbank(request,id):
-    bak=bankreceipt.objects.get(id=id)
-    uid=bak.ledger.id
-    led=ledger.objects.get(id=uid)
-    pd=led.id
-
-    if request.method=="POST":
-        bak.instno=request.POST.get('instno')
-        bak.instdate=request.POST.get('date')
-        transaction=request.POST.get('transaction')
-        trans=transactiontype.objects.get(transactiontype=transaction)
-        bak.transactiontype=trans
-        bak.save()
-        return redirect('home')
-
-def getjuly(request,id):
-    fiscalyear.setup_fiscal_calendar(start_month=1)
-    fy = FiscalYear.current()
-    current_fiscal_year = FiscalYear.current()
-    d = datetime.datetime(current_fiscal_year.start.year, current_fiscal_year.start.month, current_fiscal_year.start.day)
-    print(d)
-    for m in range(6, 7):
-        for n in range(6,7):
-            next_month_start = d + relativedelta.relativedelta(months=m, day=1)
-            next_month_end = d + relativedelta.relativedelta(months=n, day=31)
-            print(next_month_start.strftime('%Y-%m-%d'))
-            print(next_month_end.strftime('%Y-%m-%d'))
-            rec=bankreceipt.objects.filter(instdate__gte=next_month_start,instdate__lte=next_month_end,ledger=id)
-            print(rec)
-    return render(request,'receiptbank.html',{'rec':rec})  
-
+    return render(request,'receiptbank.html')
 
 
 
