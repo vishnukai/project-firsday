@@ -5,10 +5,10 @@
 <div class="col-sm-12">
     <div class=row>
     <div class="col-sm-6">
-        {% for bak in rec|slice:":1" %}
-Ledger: {{bak.date.account}}
+        <!-- {% for bak in bank|slice:":1" %}
+Ledger: {{bak.amount.particualrs}}
 
-{% endfor %}
+{% endfor %} -->
     </div>
     <div class="col-sm-6" style="text-align:right;">
         1-Apr-2022
@@ -57,34 +57,34 @@ Ledger: {{bak.date.account}}
     </tr>
 </thead>
 <tbody>
-    {% for rec in rec %}
+    <!-- {% for bank in bank %} -->
     <tr>
         <td>
             <input type="checkbox" id="bk" name="vehicle" onClick="checkbox();" value={{bank.amount.amount}}>
         </td>
         <td>
-            {{rec.date.date}}
+            <!-- {{bank.date.date}} -->
         </td>
         <td>
-        <a href="{% url 'getbank' rec.id %}">  {{rec.amount.particualrs}}</a> 
+        <a href="{% url 'voucher' bank.id %}">  {{bank.amount.particualrs}}</a> 
         </td>
         <td>
-            {{rec.instno}}
+            <!-- {{bank.instno}} -->
             
         </td>
         <td>
-            {{rec.instdate}}
+            <!-- {{bank.instdate}} -->
         </td>
         <td>
-            No
+            <!-- No -->
              
            
         </td>
         <td >
-            {{rec.amount.amount}}
+            <!-- {{bank.amount.amount}} -->
         </td>
     </tr>
-    {% endfor %}
+    <!-- {% endfor %} -->
  
     <tr>
        
